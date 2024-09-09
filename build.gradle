@@ -18,34 +18,42 @@ repositories {
 }
 
 dependencies {
-    // 스프링 부트 웹 애플리케이션
+    // 웹 애플리케이션
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    // 스프링 부트 데이터 JPA
+    // JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    // PostgreSQL 드라이버
+    // PostgreSQL driver
     runtimeOnly 'org.postgresql:postgresql'
 
-    // 스프링 부트 보안 (스프링 시큐리티)
+    // spring security
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
-    // 스프링 부트 OAuth2 클라이언트
+    // oauth2 client
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
-    
-
-    // 스프링 부트 데이터 MongoDB
+    // MongoDB
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
-    // 스프링 부트 데이터 Redis
+    // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+    // validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
     // 스프링 부트 이메일 서비스
     // implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-    // 스프링 부트 유효성 검사
-    // implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     // 스프링 부트 Thymeleaf 템플릿 엔진
     // implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
@@ -53,10 +61,7 @@ dependencies {
     // Thymeleaf와 스프링 서큐리티 연동
     // implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 
-    // JSON Web Token (JWT) 처리
-    // implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
-    // runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
-    // runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+    
 	
     
 
