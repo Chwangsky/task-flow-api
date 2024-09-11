@@ -10,6 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,8 +20,10 @@ import lombok.Setter;
 @Table(name = "users")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PRIVATE) // private 접근 제어자 사용
-public class User {
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +32,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email; // 이메일 (유니크 제약 조건)
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String nickname; // 닉네임
 
     @Column(nullable = false)
@@ -50,7 +54,7 @@ public class User {
     private String profileImageUrl; // 프로필 이미지 URL
 
     @Column(name = "is_oauth", nullable = false)
-    private boolean isOauth; // OAuth 여부
+    private boolean isOAuth; // OAuth 여부
 
     @Column(name = "is_email_verified", nullable = false)
     private boolean isEmailVerified; // 이메일 인증 여부
@@ -60,5 +64,8 @@ public class User {
 
     @Column(name = "updated_date", nullable = false)
     private LocalDateTime updatedDate; // 수정일
+
+    @Column(name = "refresh_token")
+    private String refreshToken;
 
 }

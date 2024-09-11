@@ -1,4 +1,4 @@
-package com.taskflow.api.security.filter;
+package com.taskflow.api.security.jwt;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -9,7 +9,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -19,9 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.taskflow.api.entity.User;
-import com.taskflow.api.security.provider.AccessTokenProvider;
-import com.taskflow.api.security.provider.RefreshTokenProvider;
+import com.taskflow.api.entity.UserEntity;
 import com.taskflow.api.service.UserService;
 import com.taskflow.api.utils.CookieUtils;
 
@@ -38,35 +35,47 @@ public class JwtProviderFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        System.out.println("jwt필터");
+
+        // 로그인 요청은 건너뜀
+        String requestURI = request.getRequestURI();
+        if (requestURI.equals("/api/v1/login")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         try {
             String token = parseBearerToken(request);
 
-            // Access Token이 없을 때
+            // 1. Access Token이 없을 때
             if (token == null) {
                 // Refresh Token을 가져옴
                 Optional<Cookie> refreshTokenCookie = CookieUtils.getCookie(request, "refresh-token");
 
-                // case 1. Refresh Token이 있으면
+                // 1-1. refresh Token이 있으면
                 if (refreshTokenCookie.isPresent()) {
                     String refreshToken = refreshTokenCookie.get().getValue();
 
                     // Refresh Token을 검증하고, 유효하면 새로운 Access Token 발급
-                    if (refreshTokenProvider.validate(refreshToken) != null) {
-                        String email = accessTokenProvider.create(refreshToken);
+                    JwtSubjectVO jwtSubjectVO = refreshTokenProvider.validate(refreshToken);
+
+                    // Refresh Token이 검증된 경우
+                    if (jwtSubjectVO != null) {
+                        String jwt = accessTokenProvider.create(jwtSubjectVO);
 
                         // UserService에서 유저 정보 확인 및 Refresh Token 일치 확인
-                        User user = userService.findByEmailAndIsOAuth(email, oauth);
+                        UserEntity user = userService.findByEmailAndIsOAuth(jwtSubjectVO.getEmail(),
+                                jwtSubjectVO.isOAuth());
 
-                        if (user != null && refreshToken.equals(user.getRefreshToken())) {
+                        if (refreshToken.equals(user.getRefreshToken())) {
                             // 새로운 Access Token 생성
-                            String newAccessToken = jwtProvider.generateAccessToken(email);
+                            String newAccessToken = accessTokenProvider.create(jwtSubjectVO);
 
                             // 새로운 Access Token을 응답 헤더에 추가
                             response.setHeader("Authorization", "Bearer " + newAccessToken);
 
                             // SecurityContext에 인증 정보 설정
-                            setAuthentication(email);
+                            setAuthentication(jwtSubjectVO.getEmail());
                         } else {
                             // Refresh Token이 일치하지 않거나 유저를 찾을 수 없으면 인증 실패 처리
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -79,14 +88,17 @@ public class JwtProviderFilter extends OncePerRequestFilter {
                     }
                 }
 
-                // case 2. Refresh Token이 없으면, 다음 체인으로 이동
+                // 1-2. Refresh Token이 없으면, 다음 체인으로 이동
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            // Access Token이 유효한 경우 SecurityContext에 인증 정보 설정
-            if (jwtProvider.validateAccessToken(token)) {
-                String email = jwtProvider.getEmailFromAccessToken(token);
+            // 2. Access Token이 존재하는 경우 SecurityContext에 인증 정보 설정
+
+            JwtSubjectVO accessToken = accessTokenProvider.validate(token);
+            // 2-1. Access Token이 유효한 경우
+            if (accessToken != null) {
+                String email = accessToken.getEmail();
                 setAuthentication(email);
             } else {
                 // Access Token이 유효하지 않으면 인증 실패 처리
@@ -120,14 +132,15 @@ public class JwtProviderFilter extends OncePerRequestFilter {
         return token;
     }
 
-    private String removeTokenPrefix(String token) throws Exception {
-        String ret;
-        if (token.startsWith(GOOGLE_PREFIX)) {
-            return token.substring(GOOGLE_PREFIX.length());
-        } else if (token.startsWith(LOCAL_PREFIX)) {
-            return token.substring(LOCAL_PREFIX.length());
-        }
-        throw new Exception();
+    private void setAuthentication(String email) {
+        // 인증 정보 생성
+        AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                email, null, AuthorityUtils.NO_AUTHORITIES);
+
+        // SecurityContext 설정
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
     }
 
 }

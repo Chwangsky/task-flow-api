@@ -44,6 +44,16 @@ public class CookieUtils {
         }
     }
 
+    public static void addHttpOnlyCookie(HttpServletResponse response, String name, String value, int maxAge,
+            boolean secure) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true); // HttpOnly 속성 설정
+        cookie.setSecure(secure); // secure 속성 설정 (HTTPS 사용 시 true로 설정)
+        cookie.setMaxAge(maxAge); // 쿠키의 유효 기간 설정
+        response.addCookie(cookie);
+    }
+
     // public static String serialize(Object object) {
     // return Base64.getUrlEncoder()
     // .encodeToString(SerializationUtils.serialize(object));
