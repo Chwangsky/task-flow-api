@@ -1,4 +1,4 @@
-package com.taskflow.api.security.login;
+package com.taskflow.api.auth.filter.login;
 
 import java.io.IOException;
 
@@ -11,10 +11,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.taskflow.api.security.jwt.AccessTokenProvider;
-import com.taskflow.api.security.jwt.JwtSubjectVO;
-import com.taskflow.api.security.jwt.RefreshTokenProvider;
-import com.taskflow.api.utils.CookieUtils;
+import com.taskflow.api.auth.filter.jwt.AccessTokenProvider;
+import com.taskflow.api.auth.filter.jwt.JwtSubjectVO;
+import com.taskflow.api.auth.filter.jwt.RefreshTokenProvider;
+import com.taskflow.api.common.utils.CookieUtils;
 
 import lombok.RequiredArgsConstructor;
 

@@ -1,4 +1,4 @@
-package com.taskflow.api.config;
+package com.taskflow.api.auth.config;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,51 +28,72 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.taskflow.api.auth.filter.jwt.AccessTokenProvider;
+import com.taskflow.api.auth.filter.jwt.JwtProviderFilter;
+import com.taskflow.api.auth.filter.jwt.RefreshTokenProvider;
+import com.taskflow.api.auth.filter.login.CustomAuthenticationFailureHandler;
+import com.taskflow.api.auth.filter.login.CustomAuthenticationProvider;
+import com.taskflow.api.auth.filter.login.CustomAuthenticationSuccessHandler;
+import com.taskflow.api.auth.filter.login.CustomUsernamePasswordAuthenticationFilter;
+import com.taskflow.api.auth.service.AuthService;
 import com.taskflow.api.repository.UserRepository;
-import com.taskflow.api.security.jwt.JwtProviderFilter;
-import com.taskflow.api.security.login.CustomAuthenticationFailureHandler;
-import com.taskflow.api.security.login.CustomAuthenticationProvider;
-import com.taskflow.api.security.login.CustomAuthenticationSuccessHandler;
-import com.taskflow.api.security.login.CustomUsernamePasswordAuthenticationFilter;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
 @Configuration
+@RequiredArgsConstructor
 @EnableWebSecurity(debug = true) // TODO: debug 모드 추후 수정
 public class SecurityConfig {
 
-    @Autowired
-    private JwtProviderFilter jwtProviderFilter;
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
-    @Autowired
-    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
-    @Autowired
-    private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final AccessTokenProvider accessTokenProvider;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    private final RefreshTokenProvider refreshTokenProvider;
+
+    private final AuthService authService;
+
+    private final PasswordEncoder passwordEncoder;
 
     @Bean
     public CustomAuthenticationProvider customAuthenticationProvider() {
-        return new CustomAuthenticationProvider(userRepository, passwordEncoder());
+        return new CustomAuthenticationProvider(userRepository, passwordEncoder);
+    }
+
+    @Bean
+    public JwtProviderFilter jwtProviderFilter() {
+        return new JwtProviderFilter(accessTokenProvider, refreshTokenProvider, authService);
+    }
+
+    @Bean
+    public CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter(
+            AuthenticationManager authManager) {
+        CustomUsernamePasswordAuthenticationFilter filter = new CustomUsernamePasswordAuthenticationFilter(
+                new AntPathRequestMatcher("/api/v1/login", "POST"));
+        filter.setAuthenticationManager(authManager);
+        filter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
+        filter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
+        return filter;
+    }
+
+    @Bean
+    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder = http
+                .getSharedObject(AuthenticationManagerBuilder.class);
+        // CustomAuthenticationProvider를 AuthenticationManager에 등록
+        authenticationManagerBuilder.authenticationProvider(customAuthenticationProvider());
+        return authenticationManagerBuilder.build();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authManager) throws Exception {
-        CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter = new CustomUsernamePasswordAuthenticationFilter(
-                new AntPathRequestMatcher("/api/v1/login", "POST"));
-        customUsernamePasswordAuthenticationFilter.setAuthenticationManager(authManager);
-        customUsernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
-        customUsernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
-
         http
                 .cors(cors -> cors
                         .configurationSource(corsConfigurationSource()))
@@ -85,8 +106,9 @@ public class SecurityConfig {
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(new FailedAuthenticationEntryPoint()))
 
-                .addFilterBefore(jwtProviderFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(customUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtProviderFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(customUsernamePasswordAuthenticationFilter(authManager),
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -97,15 +119,6 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/board/**", "/api/v1/user/*", "/api/v1/user").permitAll()
                 .requestMatchers("/api/v1/auth/logout").permitAll()
                 .anyRequest().authenticated();
-    }
-
-    @Bean
-    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder = http
-                .getSharedObject(AuthenticationManagerBuilder.class);
-        // CustomAuthenticationProvider를 AuthenticationManager에 등록
-        authenticationManagerBuilder.authenticationProvider(customAuthenticationProvider());
-        return authenticationManagerBuilder.build();
     }
 
     private CorsConfigurationSource corsConfigurationSource() {

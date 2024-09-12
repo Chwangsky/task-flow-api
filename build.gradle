@@ -52,7 +52,7 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
     // 스프링 부트 이메일 서비스
-    // implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 
 
     // 스프링 부트 Thymeleaf 템플릿 엔진
@@ -61,14 +61,17 @@ dependencies {
     // Thymeleaf와 스프링 서큐리티 연동
     // implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 
-    
-	
-    
-
     // 스프링 부트 테스트
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+
+    // .env 파일 읽기 라이브러리
+    implementation 'io.github.cdimascio:dotenv-java:2.2.0'
+
+    // for vscode auto import
+    implementation 'org.apache.commons:commons-lang3:3.15.0' // Apache Commons 라이브러리
 }
 
 tasks.named('test') {

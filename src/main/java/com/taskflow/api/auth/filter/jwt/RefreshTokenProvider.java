@@ -1,4 +1,4 @@
-package com.taskflow.api.security.jwt;
+package com.taskflow.api.auth.filter.jwt;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

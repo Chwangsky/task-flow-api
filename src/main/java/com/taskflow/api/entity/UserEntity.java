@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 import lombok.AccessLevel;
@@ -29,13 +31,13 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 기본 키
 
-    @Column(nullable = false, unique = true)
-    private String email; // 이메일 (유니크 제약 조건)
+    @Column(nullable = false)
+    private String email;
 
     @Column(nullable = false, unique = true)
     private String nickname; // 닉네임
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = false)
     private String password; // 비밀번호
 
     @Column(name = "last_password_changed", nullable = false)
@@ -67,5 +69,19 @@ public class UserEntity {
 
     @Column(name = "refresh_token")
     private String refreshToken;
+
+    // 엔티티 영속화 전 생성일, 수정일 자동 설정
+    @PrePersist
+    private void onCreate() {
+        this.lastPasswordChanged = LocalDateTime.now();
+        this.createdDate = LocalDateTime.now();
+        this.updatedDate = LocalDateTime.now();
+    }
+
+    // 엔티티 영속화 전 수정일 자동 설정
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedDate = LocalDateTime.now();
+    }
 
 }

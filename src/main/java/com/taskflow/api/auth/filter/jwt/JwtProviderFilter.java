@@ -1,4 +1,4 @@
-package com.taskflow.api.security.jwt;
+package com.taskflow.api.auth.filter.jwt;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -18,24 +18,22 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.taskflow.api.auth.service.AuthService;
+import com.taskflow.api.common.utils.CookieUtils;
 import com.taskflow.api.entity.UserEntity;
-import com.taskflow.api.service.UserService;
-import com.taskflow.api.utils.CookieUtils;
 
 import lombok.RequiredArgsConstructor;
 
-@Component
 @RequiredArgsConstructor
 public class JwtProviderFilter extends OncePerRequestFilter {
 
     private final AccessTokenProvider accessTokenProvider;
     private final RefreshTokenProvider refreshTokenProvider;
-    private final UserService userService;
+    private final AuthService authService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        System.out.println("jwt필터");
 
         // 로그인 요청은 건너뜀
         String requestURI = request.getRequestURI();
@@ -64,7 +62,7 @@ public class JwtProviderFilter extends OncePerRequestFilter {
                         String jwt = accessTokenProvider.create(jwtSubjectVO);
 
                         // UserService에서 유저 정보 확인 및 Refresh Token 일치 확인
-                        UserEntity user = userService.findByEmailAndIsOAuth(jwtSubjectVO.getEmail(),
+                        UserEntity user = authService.findByEmailAndIsOAuth(jwtSubjectVO.getEmail(),
                                 jwtSubjectVO.isOAuth());
 
                         if (refreshToken.equals(user.getRefreshToken())) {

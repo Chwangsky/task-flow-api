@@ -1,4 +1,4 @@
-package com.taskflow.api.security.login;
+package com.taskflow.api.auth.filter.login;
 
 import java.util.Optional;
 
@@ -8,7 +8,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 
 import com.taskflow.api.entity.UserEntity;
 import com.taskflow.api.repository.UserRepository;
