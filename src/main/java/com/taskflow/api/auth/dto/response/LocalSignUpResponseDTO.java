@@ -1,7 +1,6 @@
 package com.taskflow.api.auth.dto.response;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
 import com.taskflow.api.common.ResponseCode;
@@ -15,6 +14,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 public class LocalSignUpResponseDTO extends ResponseDTO {
+
     Long userId;
     String email;
 
@@ -26,5 +26,21 @@ public class LocalSignUpResponseDTO extends ResponseDTO {
                 .message(ResponseMessage.SUCCESS)
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
+    }
+
+    public static ResponseEntity<ResponseDTO> duplicatedEmail() {
+        ResponseDTO responseDTO = ResponseDTO.builder()
+                .code(ResponseCode.DUPLICATE_EMAIL)
+                .message(ResponseCode.DUPLICATE_EMAIL)
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDTO);
+    }
+
+    public static ResponseEntity<ResponseDTO> duplicatedNickname() {
+        ResponseDTO responseDTO = ResponseDTO.builder()
+                .code(ResponseCode.DUPLICATE_NICKNAME)
+                .message(ResponseCode.DUPLICATE_NICKNAME)
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDTO);
     }
 }

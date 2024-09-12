@@ -61,6 +61,12 @@ public class UserEntity {
     @Column(name = "is_email_verified", nullable = false)
     private boolean isEmailVerified; // 이메일 인증 여부
 
+    @Column(name = "email_verified_token", nullable = true)
+    private String emailVerifiedToken;
+
+    @Column(name = "email_verified_token_expire_at")
+    private LocalDateTime emailVerifiedTokenExpireAt;
+
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate; // 생성일
 
@@ -73,15 +79,8 @@ public class UserEntity {
     // 엔티티 영속화 전 생성일, 수정일 자동 설정
     @PrePersist
     private void onCreate() {
-        this.lastPasswordChanged = LocalDateTime.now();
+        // this.lastPasswordChanged = LocalDateTime.now(); // 이건 서비스로직에서 적용함이 타당해보임.
         this.createdDate = LocalDateTime.now();
         this.updatedDate = LocalDateTime.now();
     }
-
-    // 엔티티 영속화 전 수정일 자동 설정
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedDate = LocalDateTime.now();
-    }
-
 }

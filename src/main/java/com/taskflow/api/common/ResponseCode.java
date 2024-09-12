@@ -21,6 +21,7 @@ public interface ResponseCode {
     String NO_PERMISSION = "NP";
 
     // HTTP STATUS 500
+    String MAIL_SENDER_ERROR = "MSE";
     String DATABASE_ERROR = "DBE";
 
 }

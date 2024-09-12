@@ -115,6 +115,7 @@ public class SecurityConfig {
 
     private Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> configureAuthorization() {
         return request -> request
+                .requestMatchers("/verify/**").permitAll() // 이메일 인증 경로
                 .requestMatchers("/", "/api/v1/auth/**", "/api/v1/search/**", "/file/**", "/oauth2/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/board/**", "/api/v1/user/*", "/api/v1/user").permitAll()
                 .requestMatchers("/api/v1/auth/logout").permitAll()
