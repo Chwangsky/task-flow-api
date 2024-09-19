@@ -1,6 +1,7 @@
 package com.taskflow.api.auth.filter.jwt;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import jakarta.servlet.FilterChain;
@@ -14,7 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -23,24 +24,26 @@ import com.taskflow.api.common.utils.CookieUtils;
 import com.taskflow.api.entity.UserEntity;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtProviderFilter extends OncePerRequestFilter {
 
     private final AccessTokenProvider accessTokenProvider;
     private final RefreshTokenProvider refreshTokenProvider;
     private final AuthService authService;
+    private final List<AntPathRequestMatcher> excludedMatchers;
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        return excludedMatchers.stream()
+                .anyMatch(matcher -> matcher.matches(request));
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
-        // 로그인 요청은 건너뜀
-        String requestURI = request.getRequestURI();
-        if (requestURI.equals("/api/v1/login")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         try {
             String token = parseBearerToken(request);
@@ -48,7 +51,7 @@ public class JwtProviderFilter extends OncePerRequestFilter {
             // 1. Access Token이 없을 때
             if (token == null) {
                 // Refresh Token을 가져옴
-                Optional<Cookie> refreshTokenCookie = CookieUtils.getCookie(request, "refresh-token");
+                Optional<Cookie> refreshTokenCookie = CookieUtils.getCookie(request, "refreshToken");
 
                 // 1-1. refresh Token이 있으면
                 if (refreshTokenCookie.isPresent()) {
@@ -59,7 +62,6 @@ public class JwtProviderFilter extends OncePerRequestFilter {
 
                     // Refresh Token이 검증된 경우
                     if (jwtSubjectVO != null) {
-                        String jwt = accessTokenProvider.create(jwtSubjectVO);
 
                         // UserService에서 유저 정보 확인 및 Refresh Token 일치 확인
                         UserEntity user = authService.findByEmailAndIsOAuth(jwtSubjectVO.getEmail(),
@@ -85,13 +87,15 @@ public class JwtProviderFilter extends OncePerRequestFilter {
                         return;
                     }
                 }
+                // 1-2. Access Token, Refresh Token 둘 다 없으면 다음 필터로
+                else {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
 
-                // 1-2. Refresh Token이 없으면, 다음 체인으로 이동
-                filterChain.doFilter(request, response);
-                return;
             }
 
-            // 2. Access Token이 존재하는 경우 SecurityContext에 인증 정보 설정
+            // 2. Access Token이 있을 때 SecurityContext에 인증 정보 설정
 
             JwtSubjectVO accessToken = accessTokenProvider.validate(token);
             // 2-1. Access Token이 유효한 경우
@@ -107,7 +111,7 @@ public class JwtProviderFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             // 예외 처리 로직
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            filterChain.doFilter(request, response);
             return;
         }
 

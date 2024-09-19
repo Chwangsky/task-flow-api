@@ -16,6 +16,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenti
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
+
         String username = obtainUsername(request);
         String password = obtainPassword(request);
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
@@ -34,4 +35,5 @@ public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenti
     private void setDetails(HttpServletRequest request, UsernamePasswordAuthenticationToken authRequest) {
         authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
     }
+
 }

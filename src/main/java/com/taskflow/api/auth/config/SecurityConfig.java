@@ -1,10 +1,13 @@
 package com.taskflow.api.auth.config;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,7 +21,6 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
@@ -40,8 +42,6 @@ import com.taskflow.api.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.IOException;
 
 @Configuration
 @RequiredArgsConstructor
@@ -69,14 +69,19 @@ public class SecurityConfig {
 
     @Bean
     public JwtProviderFilter jwtProviderFilter() {
-        return new JwtProviderFilter(accessTokenProvider, refreshTokenProvider, authService);
+
+        List<AntPathRequestMatcher> excludedPaths = new ArrayList<>();
+        excludedPaths.add(new AntPathRequestMatcher("/api/v1/auth/**")); // jwt 필터 제외 설정
+        excludedPaths.add(new AntPathRequestMatcher("/verify", "POST"));
+        return new JwtProviderFilter(accessTokenProvider, refreshTokenProvider, authService,
+                excludedPaths);
     }
 
     @Bean
     public CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter(
             AuthenticationManager authManager) {
         CustomUsernamePasswordAuthenticationFilter filter = new CustomUsernamePasswordAuthenticationFilter(
-                new AntPathRequestMatcher("/api/v1/login", "POST"));
+                AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/v1/auth/login")); // 로그인 경로
         filter.setAuthenticationManager(authManager);
         filter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
         filter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
@@ -115,10 +120,7 @@ public class SecurityConfig {
 
     private Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> configureAuthorization() {
         return request -> request
-                .requestMatchers("/verify/**").permitAll() // 이메일 인증 경로
-                .requestMatchers("/", "/api/v1/auth/**", "/api/v1/search/**", "/file/**", "/oauth2/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/board/**", "/api/v1/user/*", "/api/v1/user").permitAll()
-                .requestMatchers("/api/v1/auth/logout").permitAll()
+                .requestMatchers("/", "/api/v1/auth/**", "/verify").permitAll()
                 .anyRequest().authenticated();
     }
 
@@ -143,7 +145,8 @@ class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException)
             throws IOException, ServletException {
-        log.error("ExceptionTranslationFilter Activated!");
+
+        log.error("ExceptionTranslationFilter Activated!", authException);
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.getWriter().write("{ \"code\": \"NP\", \"message\": \"Do not have permission.\" }");

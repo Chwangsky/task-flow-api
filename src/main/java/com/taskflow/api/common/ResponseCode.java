@@ -19,6 +19,10 @@ public interface ResponseCode {
 
     // HTTP STATUS 403
     String NO_PERMISSION = "NP";
+    String MISMATCH_TOKEN = "ME";
+
+    // HTTP STATUS 410
+    String TOKEN_EXPIRED = "TE";
 
     // HTTP STATUS 500
     String MAIL_SENDER_ERROR = "MSE";

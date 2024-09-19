@@ -1,5 +1,7 @@
 package com.taskflow.api.auth.controller;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +29,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<? super LocalSignUpResponseDTO> localSignUp(@RequestBody LocalSignUpRequestDTO dto) {
+    public ResponseEntity<? super LocalSignUpResponseDTO> localSignUp(@Valid @RequestBody LocalSignUpRequestDTO dto) {
         return authService.localSignUp(dto);
     }
 

@@ -24,6 +24,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        log.info("로그인필터 동작");
         String email = authentication.getName();
         String password = authentication.getCredentials().toString();
 

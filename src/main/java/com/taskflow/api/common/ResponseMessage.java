@@ -19,6 +19,10 @@ public interface ResponseMessage {
 
     // HTTP STATUS 403
     String NO_PERMISSION = "Do not have permission";
+    String MISMATCH_TOKEN = "Mismatched Token";
+
+    // HTTP STATUS 410
+    String TOKEN_EXPIRED = "Token Expired";
 
     // HTTP STATUS 500
     String MAIL_SENDER_ERROR = "Mail Sendor Error.";

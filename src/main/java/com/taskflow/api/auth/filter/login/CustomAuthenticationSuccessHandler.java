@@ -41,7 +41,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         String refreshToken = refreshTokenProvider.create(jwt);
 
         // refreshToken을 HttpOnly Cookie에 추가
-        CookieUtils.addHttpOnlyCookie(response, "refresh-token", refreshToken, REFRESH_TOKEN_EXPIRATION, false);
+        CookieUtils.addHttpOnlyCookie(response, "refreshToken", refreshToken, REFRESH_TOKEN_EXPIRATION, false);
 
         response.setHeader("Authorization", "Bearer " + accessToken); // accessToken을 Authorization 헤더에 추가
         response.setContentType("application/json");

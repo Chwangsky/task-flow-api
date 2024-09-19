@@ -16,7 +16,7 @@ public class EmailProvider {
     private final String SUBJECT = "TASK FLOW 인증 메일입니다.";
 
     @Async
-    public boolean sendCertificationMail(String mail, String certificationNumber, Long userId) {
+    public void sendCertificationMail(String mail, String certificationNumber, Long userId) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper messageHelper = new MimeMessageHelper(message, true, "UTF-8");
@@ -26,10 +26,10 @@ public class EmailProvider {
             messageHelper.setText(getCertificationMessage(certificationNumber, userId), true); // HTML 형식의 내용 설정
 
             javaMailSender.send(message);
-            return true;
+            return;
         } catch (Exception e) {
             e.printStackTrace(); // TODO: 예외처리 추가
-            return false;
+            return;
         }
     }
 

@@ -62,6 +62,10 @@ public class AuthServiceImpl implements AuthService {
         UserEntity user = UserEntity.builder()
                 .email(signUpRequestDTO.getEmail())
                 .password(passwordEncoder.encode(signUpRequestDTO.getPassword()))
+                .nickname(signUpRequestDTO.getNickname())
+                .telNumber(signUpRequestDTO.getTelNumber())
+                .address(signUpRequestDTO.getAddress())
+                .addressDetail(signUpRequestDTO.getAddressDetail())
                 .isOAuth(false)
                 .isEmailVerified(false)
                 .lastPasswordChanged(LocalDateTime.now())
@@ -70,7 +74,7 @@ public class AuthServiceImpl implements AuthService {
                         LocalDateTime.now().plusSeconds(Long.valueOf(EMAIL_VERIFY_TOKEN_EXPIRATION)))
                 .build();
 
-        // 이메일 전송
+        // @Async 이메일 전송
         emailProvider.sendCertificationMail(signUpRequestDTO.getEmail(), token, user.getId());
 
         try {
