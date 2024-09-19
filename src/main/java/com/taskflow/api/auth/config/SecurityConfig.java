@@ -72,7 +72,7 @@ public class SecurityConfig {
 
         List<AntPathRequestMatcher> excludedPaths = new ArrayList<>();
         excludedPaths.add(new AntPathRequestMatcher("/api/v1/auth/**")); // jwt 필터 제외 설정
-        excludedPaths.add(new AntPathRequestMatcher("/verify", "POST"));
+        excludedPaths.add(new AntPathRequestMatcher("/email-verify", "POST"));
         return new JwtProviderFilter(accessTokenProvider, refreshTokenProvider, authService,
                 excludedPaths);
     }
@@ -120,7 +120,8 @@ public class SecurityConfig {
 
     private Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> configureAuthorization() {
         return request -> request
-                .requestMatchers("/", "/api/v1/auth/**", "/verify").permitAll()
+                .requestMatchers("/", "/api/v1/auth/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/email-verify").permitAll()
                 .anyRequest().authenticated();
     }
 

@@ -36,10 +36,10 @@ public class EmailProvider {
     private String getCertificationMessage(String certificationNumber, Long userId) {
         return "<div style='background-color: #000000; color: #ffffff; padding: 30px; text-align: center; font-family: Arial, sans-serif;'>"
                 + "<h1 style='margin-bottom: 20px;'>아래 버튼을 눌러 인증을 완료해 주세요</h1>"
-                + "<form action='http://localhost:9090/verify' method='POST' style='margin-bottom: 40px;'>"
+                + "<form action='http://localhost:9090/email-verify' method='POST' style='margin-bottom: 40px;'>"
                 + "<input type='hidden' name='userId' value='" + String.valueOf(userId) + "'>"
                 + "<input type='hidden' name='token' value='" + certificationNumber + "'>"
-                + "<button type='submit' style='padding: 15px 25px; font-size: 18px; font-weight: bold; color: #ffffff; background-color: #FF5733; text-decoration: none; border-radius: 8px;'>"
+                + "<button type='submit' style='padding: 15px 25px; font-size: 18px; font-weight: bold; color: #ffffff; background-color: #79EDFF; text-decoration: none; border-radius: 8px;'>"
                 + "인증하기"
                 + "</button>"
                 + "</form>"

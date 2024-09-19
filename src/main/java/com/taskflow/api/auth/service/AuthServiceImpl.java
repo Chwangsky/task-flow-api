@@ -74,15 +74,15 @@ public class AuthServiceImpl implements AuthService {
                         LocalDateTime.now().plusSeconds(Long.valueOf(EMAIL_VERIFY_TOKEN_EXPIRATION)))
                 .build();
 
-        // @Async 이메일 전송
-        emailProvider.sendCertificationMail(signUpRequestDTO.getEmail(), token, user.getId());
-
         try {
             user = userRepository.save(user);
-            return LocalSignUpResponseDTO.success(user);
         } catch (Exception e) {
             return ResponseDTO.databaseError();
         }
+        // @Async 이메일 전송
+        emailProvider.sendCertificationMail(signUpRequestDTO.getEmail(), token, user.getId());
+
+        return LocalSignUpResponseDTO.success(user);
 
     }
 

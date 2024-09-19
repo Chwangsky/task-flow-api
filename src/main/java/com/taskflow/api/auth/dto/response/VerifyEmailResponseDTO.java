@@ -30,4 +30,11 @@ public class VerifyEmailResponseDTO extends ResponseDTO {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(dto);
     }
 
+    public static ResponseEntity<VerifyEmailResponseDTO> success() {
+        VerifyEmailResponseDTO dto = VerifyEmailResponseDTO.builder()
+                .code(ResponseCode.SUCCESS)
+                .message(ResponseCode.SUCCESS)
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(dto);
+    }
 }

@@ -54,12 +54,11 @@ dependencies {
     // 스프링 부트 이메일 서비스
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-
     // 스프링 부트 Thymeleaf 템플릿 엔진
-    // implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
     // Thymeleaf와 스프링 서큐리티 연동
-    // implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 
     // 스프링 부트 테스트
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
