@@ -10,6 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
+import org.hibernate.annotations.DynamicUpdate;
+
 import com.taskflow.api.auth.dto.request.LocalSignUpRequestDTO;
 
 import lombok.AccessLevel;
@@ -24,6 +26,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@DynamicUpdate
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserEntity {

@@ -22,9 +22,11 @@ import org.springframework.security.config.annotation.web.configurers.HttpBasicC
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -61,6 +63,12 @@ public class SecurityConfig {
     private final AuthService authService;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final DefaultOAuth2UserService oAuth2UserService;
+
+    private final LogoutSuccessHandler logoutSuccessHandler;
+
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public CustomAuthenticationProvider customAuthenticationProvider() {
@@ -108,6 +116,18 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // JWT 인증 방식을 사용하므로 STATELESS
                 )
                 .authorizeHttpRequests(configureAuthorization())
+                .logout(logout -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/auth/logout")) // 로그아웃 경로 설정
+                        .logoutSuccessHandler(logoutSuccessHandler)
+                        .deleteCookies("JSESSIONID"))
+                .oauth2Login(oauth2 -> oauth2
+                        .redirectionEndpoint(endpoint -> endpoint.baseUri("/oauth2/callback/**")) // OAuth2 제공자로부터
+                                                                                                  // 리다이렉션을 받을 기본 URI를
+                                                                                                  // 설정.
+                        .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService)) // 사용자가 인증을 완료한 후 사용자에 대한
+                                                                                               // 추가 정보를 Auth제공자로부터 얻을 수
+                                                                                               // 있는 방법 설정
+                        .successHandler(oAuth2LoginSuccessHandler))
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(new FailedAuthenticationEntryPoint()))
 
