@@ -26,7 +26,6 @@ public class EmailVerifyController {
     @PostMapping("/email-verify")
     public String postMethodName(@ModelAttribute EmailVerifyRequestDTO emailVerifyRequestDTO, Model model) {
 
-        log.info("Received DTO: {}", emailVerifyRequestDTO);
         String alert = emailService.verifyToken(emailVerifyRequestDTO);
         model.addAttribute("dto", alert);
 

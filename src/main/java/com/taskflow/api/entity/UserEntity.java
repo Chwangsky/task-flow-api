@@ -8,8 +8,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+
+import com.taskflow.api.auth.dto.request.LocalSignUpRequestDTO;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -83,4 +84,22 @@ public class UserEntity {
         this.createdDate = LocalDateTime.now();
         this.updatedDate = LocalDateTime.now();
     }
+
+    public static UserEntity emailVerifiyEntityFromDTO(LocalSignUpRequestDTO dto, String encodedPassword, String token,
+            LocalDateTime expireAt) {
+        return UserEntity.builder()
+                .email(dto.getEmail())
+                .password(encodedPassword)
+                .nickname(dto.getNickname())
+                .telNumber(dto.getTelNumber())
+                .address(dto.getAddress())
+                .addressDetail(dto.getAddressDetail())
+                .isOAuth(false)
+                .isEmailVerified(false)
+                .lastPasswordChanged(LocalDateTime.now())
+                .emailVerifiedToken(token)
+                .emailVerifiedTokenExpireAt(expireAt)
+                .build();
+    }
+
 }

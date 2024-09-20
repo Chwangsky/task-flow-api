@@ -34,7 +34,12 @@ public class EmailServiceImpl implements EmailService {
 
         if (user.isEmpty())
             return "정상적인 접근이 아닙니다.";
+
         UserEntity userEntity = user.get();
+
+        // 중목 이메일 인증 확인 여부
+        if (userEntity.isEmailVerified())
+            return "이미 인증이 만료된 메일입니다.";
 
         // 토큰 만료 여부 확인
         if (userEntity.getEmailVerifiedTokenExpireAt().isBefore(LocalDateTime.now())) {

@@ -15,6 +15,7 @@ import com.taskflow.api.auth.dto.request.LocalSignUpRequestDTO;
 import com.taskflow.api.auth.dto.response.DuplicatedEmailResponseDTO;
 import com.taskflow.api.auth.dto.response.DuplicatedNicknameResponseDTO;
 import com.taskflow.api.auth.dto.response.LocalSignUpResponseDTO;
+import com.taskflow.api.auth.dto.response.ReSendEmailResponseDTO;
 import com.taskflow.api.auth.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
@@ -45,4 +46,8 @@ public class AuthController {
         return authService.checkEmailDuplicated(dto);
     }
 
+    @PostMapping("/resend-verify-email")
+    public ResponseEntity<? super ReSendEmailResponseDTO> resendEmail(Long userId) {
+        return authService.reSendEmail(userId);
+    }
 }

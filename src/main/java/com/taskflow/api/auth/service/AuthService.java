@@ -8,6 +8,7 @@ import com.taskflow.api.auth.dto.request.LocalSignUpRequestDTO;
 import com.taskflow.api.auth.dto.response.DuplicatedEmailResponseDTO;
 import com.taskflow.api.auth.dto.response.DuplicatedNicknameResponseDTO;
 import com.taskflow.api.auth.dto.response.LocalSignUpResponseDTO;
+import com.taskflow.api.auth.dto.response.ReSendEmailResponseDTO;
 import com.taskflow.api.entity.UserEntity;
 
 public interface AuthService {
@@ -19,5 +20,7 @@ public interface AuthService {
 
     ResponseEntity<? super DuplicatedNicknameResponseDTO> checkNicknameDuplicated(
             DuplicatedNicknameRequestDTO dto);
+
+    ResponseEntity<? super ReSendEmailResponseDTO> reSendEmail(Long userId);
 
 }

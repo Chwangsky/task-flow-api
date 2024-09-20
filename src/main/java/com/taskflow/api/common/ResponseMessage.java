@@ -16,6 +16,8 @@ public interface ResponseMessage {
     // HTTP STATUS 401
     String SIGN_IN_FAIL = "Login information mismatch.";
     String AUTHORIZATION_FAIL = "Authorization failed";
+    String ALREADY_VERIFIED_ACCOUNT = "Already Verified Account.";
+    String NOT_VERIFIED_ACCOUNT = "Account Not Verified.";
 
     // HTTP STATUS 403
     String NO_PERMISSION = "Do not have permission";

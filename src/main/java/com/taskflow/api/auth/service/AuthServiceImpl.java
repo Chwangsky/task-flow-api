@@ -1,6 +1,7 @@
 package com.taskflow.api.auth.service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import com.taskflow.api.auth.dto.request.LocalSignUpRequestDTO;
 import com.taskflow.api.auth.dto.response.DuplicatedEmailResponseDTO;
 import com.taskflow.api.auth.dto.response.DuplicatedNicknameResponseDTO;
 import com.taskflow.api.auth.dto.response.LocalSignUpResponseDTO;
+import com.taskflow.api.auth.dto.response.ReSendEmailResponseDTO;
 import com.taskflow.api.auth.email.EmailProvider;
 import com.taskflow.api.common.dto.ResponseDTO;
 import com.taskflow.api.common.utils.EmailVerifyTokenGenerator;
@@ -49,6 +51,7 @@ public class AuthServiceImpl implements AuthService {
         // 1. 이메일 및 닉네임 중복 여부 확인
 
         try {
+            // email + oauth인증 여부를가 모두 같아야만 중복된 이메일로 취급한다.
             if (checkIfEmailDuplicated(signUpRequestDTO.getEmail()))
                 return LocalSignUpResponseDTO.duplicatedEmail();
             if (checkIfNicknameDuplicated(signUpRequestDTO.getNickname()))
@@ -59,30 +62,61 @@ public class AuthServiceImpl implements AuthService {
 
         String token = EmailVerifyTokenGenerator.generateVerifyToken();
 
-        UserEntity user = UserEntity.builder()
-                .email(signUpRequestDTO.getEmail())
-                .password(passwordEncoder.encode(signUpRequestDTO.getPassword()))
-                .nickname(signUpRequestDTO.getNickname())
-                .telNumber(signUpRequestDTO.getTelNumber())
-                .address(signUpRequestDTO.getAddress())
-                .addressDetail(signUpRequestDTO.getAddressDetail())
-                .isOAuth(false)
-                .isEmailVerified(false)
-                .lastPasswordChanged(LocalDateTime.now())
-                .emailVerifiedToken(token)
-                .emailVerifiedTokenExpireAt(
-                        LocalDateTime.now().plusSeconds(Long.valueOf(EMAIL_VERIFY_TOKEN_EXPIRATION)))
-                .build();
+        UserEntity userEntity = UserEntity.emailVerifiyEntityFromDTO(
+                signUpRequestDTO,
+                passwordEncoder.encode(signUpRequestDTO.getPassword()),
+                token,
+                LocalDateTime.now().plusSeconds(Long.valueOf(EMAIL_VERIFY_TOKEN_EXPIRATION)));
 
         try {
-            user = userRepository.save(user);
+            userEntity = userRepository.save(userEntity);
         } catch (Exception e) {
             return ResponseDTO.databaseError();
         }
         // @Async 이메일 전송
-        emailProvider.sendCertificationMail(signUpRequestDTO.getEmail(), token, user.getId());
+        emailProvider.sendCertificationMail(signUpRequestDTO.getEmail(), token, userEntity.getId());
 
-        return LocalSignUpResponseDTO.success(user);
+        return LocalSignUpResponseDTO.success(userEntity);
+    }
+
+    @Transactional
+    public ResponseEntity<? super ReSendEmailResponseDTO> reSendEmail(Long userId) {
+
+        Optional<UserEntity> user;
+        try {
+            user = userRepository.findById(userId);
+        } catch (Exception e) {
+            return ResponseDTO.databaseError();
+        }
+
+        // userId가 유효하지 않은 경우
+        if (user.isEmpty()) {
+            return ReSendEmailResponseDTO.noSuchUser();
+        }
+
+        UserEntity userEntity = user.get();
+
+        // 이메일 중복 여부
+        if (userEntity.isEmailVerified() == true) {
+            return ReSendEmailResponseDTO.alreadyVerifiedEmail();
+        }
+
+        //
+        String token = EmailVerifyTokenGenerator.generateVerifyToken();
+
+        userEntity.setEmailVerifiedToken(token);
+        userEntity.setEmailVerifiedTokenExpireAt(
+                LocalDateTime.now().plusSeconds(Long.valueOf(EMAIL_VERIFY_TOKEN_EXPIRATION)));
+
+        try {
+            userEntity = userRepository.save(userEntity);
+        } catch (Exception e) {
+            return ResponseDTO.databaseError();
+        }
+        // @Async 이메일 전송
+        emailProvider.sendCertificationMail(userEntity.getEmail(), token, userEntity.getId());
+
+        return ReSendEmailResponseDTO.success();
 
     }
 
