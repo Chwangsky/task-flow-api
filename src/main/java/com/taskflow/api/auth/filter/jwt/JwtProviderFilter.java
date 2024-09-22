@@ -64,10 +64,15 @@ public class JwtProviderFilter extends OncePerRequestFilter {
                     if (jwtSubjectVO != null) {
 
                         // UserService에서 유저 정보 확인 및 Refresh Token 일치 확인
-                        UserEntity user = authService.findByEmailAndIsOAuth(jwtSubjectVO.getEmail(),
-                                jwtSubjectVO.isOAuth());
+                        UserEntity userEntity = null;
+                        try {
+                            userEntity = authService.findByEmailAndIsOAuth(jwtSubjectVO.getEmail(),
+                                    jwtSubjectVO.isOAuth());
+                        } catch (Exception e) {
+                            log.warn("refresh 토큰 확인 중 데이터베이스 오류입니다.");
+                        }
 
-                        if (refreshToken.equals(user.getRefreshToken())) {
+                        if (userEntity != null && refreshToken.equals(userEntity.getRefreshToken())) {
                             // 새로운 Access Token 생성
                             String newAccessToken = accessTokenProvider.create(jwtSubjectVO);
 

@@ -23,6 +23,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestCustomizers;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -39,6 +41,7 @@ import com.taskflow.api.auth.filter.login.CustomAuthenticationFailureHandler;
 import com.taskflow.api.auth.filter.login.CustomAuthenticationProvider;
 import com.taskflow.api.auth.filter.login.CustomAuthenticationSuccessHandler;
 import com.taskflow.api.auth.filter.login.CustomUsernamePasswordAuthenticationFilter;
+import com.taskflow.api.auth.handler.OAuth2LoginSuccessHandler;
 import com.taskflow.api.auth.service.AuthService;
 import com.taskflow.api.repository.UserRepository;
 
@@ -113,20 +116,23 @@ public class SecurityConfig {
                 .csrf(CsrfConfigurer::disable) // restapi 서버이므로 csrf 비활성화
                 .httpBasic(HttpBasicConfigurer::disable) // 기본 Http설정 비활성화
                 .sessionManagement(sessionManagement -> sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // JWT 인증 방식을 사용하므로 STATELESS
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // JWT 인증 방식을
+                                                                                // 사용하므로
+                                                                                // STATELESS
                 )
                 .authorizeHttpRequests(configureAuthorization())
                 .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/auth/logout")) // 로그아웃 경로 설정
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/auth/logout")) // 로그아웃
+                                                                                                // 경로
+                                                                                                // 설정
                         .logoutSuccessHandler(logoutSuccessHandler)
                         .deleteCookies("JSESSIONID"))
                 .oauth2Login(oauth2 -> oauth2
-                        .redirectionEndpoint(endpoint -> endpoint.baseUri("/oauth2/callback/**")) // OAuth2 제공자로부터
-                                                                                                  // 리다이렉션을 받을 기본 URI를
-                                                                                                  // 설정.
-                        .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService)) // 사용자가 인증을 완료한 후 사용자에 대한
-                                                                                               // 추가 정보를 Auth제공자로부터 얻을 수
-                                                                                               // 있는 방법 설정
+                        // OAuth2 제공자로부터 리다이렉션을 받을 기본 URI를 설정.
+                        .redirectionEndpoint(
+                                endpoint -> endpoint.baseUri("/oauth2/callback/**"))
+                        // 사용자가 인증을 완료한 후 사용자에 대한 추가 정보를 Authorization Server로부터 얻을 수 있는 방법 설정
+                        .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService))
                         .successHandler(oAuth2LoginSuccessHandler))
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(new FailedAuthenticationEntryPoint()))

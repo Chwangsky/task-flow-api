@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+// TODO: 빌더패턴으로 리펙터링
 @NoArgsConstructor
 @Data // Lombok annotation for getters, setters, equals, hashCode and toString methods
 public class CustomOAuth2User implements OAuth2User {

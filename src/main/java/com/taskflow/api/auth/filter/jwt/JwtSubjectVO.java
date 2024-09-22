@@ -1,5 +1,9 @@
 package com.taskflow.api.auth.filter.jwt;
 
+import java.util.Optional;
+
+import com.taskflow.api.entity.UserEntity;
+
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,6 +20,10 @@ public class JwtSubjectVO {
             return "GOOGLE:" + email;
         else
             return "LOCAL:" + email;
+    }
+
+    public static JwtSubjectVO fromEntity(UserEntity user) {
+        return new JwtSubjectVO(user.getEmail(), user.isOAuth());
     }
 
     public static JwtSubjectVO fromString(String value) throws IllegalArgumentException {
