@@ -1,4 +1,4 @@
-package com.taskflow.api.common.exception;
+package com.taskflow.api.global.exception;
 
 import jakarta.persistence.PersistenceException;
 
@@ -7,9 +7,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.taskflow.api.common.ResponseCode;
-import com.taskflow.api.common.ResponseMessage;
-import com.taskflow.api.common.dto.ResponseDTO;
+import com.taskflow.api.global.ResponseCode;
+import com.taskflow.api.global.ResponseMessage;
+import com.taskflow.api.global.dto.ResponseDTO;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,4 +1,4 @@
-package com.taskflow.api.repository;
+package com.taskflow.api.global.repository;
 
 import java.lang.foreign.Linker.Option;
 import java.util.Optional;
@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.taskflow.api.entity.UserEntity;
+import com.taskflow.api.global.entity.UserEntity;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {

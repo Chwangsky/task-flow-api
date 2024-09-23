@@ -2,7 +2,7 @@ package com.taskflow.api.auth.filter.jwt;
 
 import java.util.Optional;
 
-import com.taskflow.api.entity.UserEntity;
+import com.taskflow.api.global.entity.UserEntity;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.taskflow.api.common.config;
+package com.taskflow.api.global.config;
 
 import java.util.concurrent.Executor;
 

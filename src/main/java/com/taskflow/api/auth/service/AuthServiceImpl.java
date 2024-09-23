@@ -17,10 +17,10 @@ import com.taskflow.api.auth.dto.response.DuplicatedNicknameResponseDTO;
 import com.taskflow.api.auth.dto.response.LocalSignUpResponseDTO;
 import com.taskflow.api.auth.dto.response.ReSendEmailResponseDTO;
 import com.taskflow.api.auth.email.EmailProvider;
-import com.taskflow.api.common.dto.ResponseDTO;
-import com.taskflow.api.common.utils.EmailVerifyTokenGenerator;
-import com.taskflow.api.entity.UserEntity;
-import com.taskflow.api.repository.UserRepository;
+import com.taskflow.api.global.dto.ResponseDTO;
+import com.taskflow.api.global.entity.UserEntity;
+import com.taskflow.api.global.repository.UserRepository;
+import com.taskflow.api.global.utils.EmailVerifyTokenGenerator;
 
 import lombok.RequiredArgsConstructor;
 

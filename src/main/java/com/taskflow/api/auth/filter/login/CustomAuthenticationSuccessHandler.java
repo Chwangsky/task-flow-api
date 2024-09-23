@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import com.taskflow.api.auth.filter.jwt.AccessTokenProvider;
 import com.taskflow.api.auth.filter.jwt.JwtSubjectVO;
 import com.taskflow.api.auth.filter.jwt.RefreshTokenProvider;
-import com.taskflow.api.common.utils.CookieUtils;
+import com.taskflow.api.global.utils.CookieUtils;
 
 import lombok.RequiredArgsConstructor;
 

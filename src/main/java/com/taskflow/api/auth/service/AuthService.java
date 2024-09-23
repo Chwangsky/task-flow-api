@@ -9,7 +9,7 @@ import com.taskflow.api.auth.dto.response.DuplicatedEmailResponseDTO;
 import com.taskflow.api.auth.dto.response.DuplicatedNicknameResponseDTO;
 import com.taskflow.api.auth.dto.response.LocalSignUpResponseDTO;
 import com.taskflow.api.auth.dto.response.ReSendEmailResponseDTO;
-import com.taskflow.api.entity.UserEntity;
+import com.taskflow.api.global.entity.UserEntity;
 
 public interface AuthService {
     UserEntity findByEmailAndIsOAuth(String email, boolean isOAuth);

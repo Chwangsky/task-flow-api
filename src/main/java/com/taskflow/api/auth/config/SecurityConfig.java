@@ -43,7 +43,7 @@ import com.taskflow.api.auth.filter.login.CustomAuthenticationSuccessHandler;
 import com.taskflow.api.auth.filter.login.CustomUsernamePasswordAuthenticationFilter;
 import com.taskflow.api.auth.handler.OAuth2LoginSuccessHandler;
 import com.taskflow.api.auth.service.AuthService;
-import com.taskflow.api.repository.UserRepository;
+import com.taskflow.api.global.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

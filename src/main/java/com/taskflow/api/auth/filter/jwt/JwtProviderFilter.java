@@ -20,8 +20,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.taskflow.api.auth.service.AuthService;
-import com.taskflow.api.common.utils.CookieUtils;
-import com.taskflow.api.entity.UserEntity;
+import com.taskflow.api.global.entity.UserEntity;
+import com.taskflow.api.global.utils.CookieUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

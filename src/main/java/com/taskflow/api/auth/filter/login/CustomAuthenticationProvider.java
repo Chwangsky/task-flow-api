@@ -9,8 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.taskflow.api.entity.UserEntity;
-import com.taskflow.api.repository.UserRepository;
+import com.taskflow.api.global.entity.UserEntity;
+import com.taskflow.api.global.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

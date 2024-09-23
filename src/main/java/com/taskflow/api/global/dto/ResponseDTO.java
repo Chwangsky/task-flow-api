@@ -1,10 +1,10 @@
-package com.taskflow.api.common.dto;
+package com.taskflow.api.global.dto;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.taskflow.api.common.ResponseCode;
-import com.taskflow.api.common.ResponseMessage;
+import com.taskflow.api.global.ResponseCode;
+import com.taskflow.api.global.ResponseMessage;
 
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;

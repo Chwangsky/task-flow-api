@@ -14,13 +14,15 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.taskflow.api.auth.filter.jwt.AccessTokenProvider;
 import com.taskflow.api.auth.filter.jwt.JwtSubjectVO;
 import com.taskflow.api.auth.filter.jwt.RefreshTokenProvider;
-import com.taskflow.api.common.ResponseCode;
-import com.taskflow.api.common.ResponseMessage;
-import com.taskflow.api.repository.UserRepository;
+import com.taskflow.api.global.ResponseCode;
+import com.taskflow.api.global.ResponseMessage;
+import com.taskflow.api.global.entity.UserEntity;
+import com.taskflow.api.global.entity.UserGoogleTokenEntity;
+import com.taskflow.api.global.repository.UserGoogleTokenRepository;
+import com.taskflow.api.global.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
+    private final UserGoogleTokenRepository userGoogleTokenRepository;
     private final AccessTokenProvider accessTokenProvider;
     private final RefreshTokenProvider refreshTokenProvider;
     private final ObjectMapper objectMapper;
@@ -57,13 +60,27 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                         .isOAuth(true)
                         .build());
 
-        // Access Token 및 Refresh Token 만료 시간 설정
-        int accessTokenExpirationTime = 3600; // Access Token 만료 시간 (초 단위)
-        int refreshTokenExpirationTime = 604800; // Refresh Token 만료 시간 (1주일)
-
+        // Google OAuth2 Access Token 및 기타 정보 가져오기
         String googleAccessToken = oAuth2User.getAttribute("access_token");
         String googleRefreshToken = oAuth2User.getAttribute("refresh_token");
         Date googleAccessTokenExpiry = oAuth2User.getAttribute("expires_at");
+
+        // 사용자 정보 가져오기
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 사용자 Google OAuth2 토큰 정보를 저장/업데이트
+        UserGoogleTokenEntity userGoogleToken = userGoogleTokenRepository.findById(user.getId()).orElseGet(() -> {
+            return new UserGoogleTokenEntity(); // 기존에 저장된 토큰 정보가 없으면 새로 생성
+        });
+
+        userGoogleToken.setUser(user);
+        userGoogleToken.setAccessToken(googleAccessToken);
+        userGoogleToken.setRefreshToken(googleRefreshToken);
+        userGoogleToken.setExpiresAt(
+                googleAccessTokenExpiry.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime());
+        userGoogleToken.setTokenType("Bearer"); // 토큰 타입 설정
+
+        userGoogleTokenRepository.save(userGoogleToken); // 저장
 
         // 응답 데이터 구성
         String code = ResponseCode.SUCCESS;
@@ -83,6 +100,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         response.getWriter().write(jsonResponse);
 
         // 프론트엔드로 리디렉션
-        response.sendRedirect("http://localhost:3000/oauth-response/" + accessToken + "/" + accessTokenExpirationTime);
+        response.sendRedirect("http://localhost:3000/oauth-response/" + accessToken + "/" + 3600); // 3600: Access Token
+                                                                                                   // 만료 시간 (1시간)
     }
 }

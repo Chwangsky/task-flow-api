@@ -1,4 +1,4 @@
-package com.taskflow.api.entity;
+package com.taskflow.api.global.entity;
 
 import java.time.LocalDateTime;
 

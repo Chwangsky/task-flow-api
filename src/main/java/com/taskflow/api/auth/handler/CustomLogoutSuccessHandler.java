@@ -14,8 +14,8 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.taskflow.api.common.ResponseCode;
-import com.taskflow.api.common.ResponseMessage;
+import com.taskflow.api.global.ResponseCode;
+import com.taskflow.api.global.ResponseMessage;
 
 import lombok.extern.slf4j.Slf4j;
 

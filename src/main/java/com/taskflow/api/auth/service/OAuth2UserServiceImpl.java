@@ -7,8 +7,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.taskflow.api.auth.handler.CustomOAuth2User;
-import com.taskflow.api.entity.UserEntity;
-import com.taskflow.api.repository.UserRepository;
+import com.taskflow.api.global.entity.UserEntity;
+import com.taskflow.api.global.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 

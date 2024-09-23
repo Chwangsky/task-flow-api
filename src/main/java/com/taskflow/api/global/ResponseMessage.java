@@ -1,4 +1,4 @@
-package com.taskflow.api.common;
+package com.taskflow.api.global;
 
 public interface ResponseMessage {
 
