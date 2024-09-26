@@ -31,6 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtProviderFilter extends OncePerRequestFilter {
 
     private final AccessTokenProvider accessTokenProvider;
+
+    // TODO 리프레시 토큰을 부여하는 로직은 별도로 분리하는 것이 보안상 맞는듯..
     private final RefreshTokenProvider refreshTokenProvider;
     private final AuthService authService;
     private final List<AntPathRequestMatcher> excludedMatchers;

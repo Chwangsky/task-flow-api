@@ -50,4 +50,11 @@ public class AuthController {
     public ResponseEntity<? super ReSendEmailResponseDTO> resendEmail(Long userId) {
         return authService.reSendEmail(userId);
     }
+
+    @PostMapping("refresh-token")
+    public String postMethodName(@RequestBody String entity) {
+
+        return entity;
+    }
+
 }
